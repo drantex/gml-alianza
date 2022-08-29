@@ -1,3 +1,4 @@
+#H1 header
 Aplicación realizada en Java 8 con spring boot, en la cual Magneto quiere reclutar la mayor cantidad de mutantes para poder luchar contra los X-Men. 
 Por lo cual te ha contratado a ti para que desarrolles un proyecto que detecte si un humano es mutante 
 basándose en su secuencia de ADN. 
@@ -7,13 +8,13 @@ En donde recibirás como parámetro un array de Strings que representan cada fil
 de (NxN) con la secuencia del ADN. Las letras de los Strings solo pueden ser: (A,T,C,G), las 
 cuales representa cada base nitrogenada del ADN. 
 
-A T G C G A                 A T G C G A
+`A T G C G A                 A T G C G A
 C A G T G C                 C A G T G C 
 T T A T T T                 T T A T G T 
 A G A C G G                 A G A A G G 
 G C G T C A                 C C C C T A 
 T C A C T G                 T C A C T G 
-No-Mutante                  Mutante
+No-Mutante                  Mutante`
 
 
 Sabrás si un humano es mutante, si encuentras más de una secuencia de cuatro letras 
