@@ -48,13 +48,8 @@ public class MutantsController {
     @GetMapping("/stats")
     public ResponseEntity<GenericResponse> getstats() {
         GenericResponse response = new GenericResponse();
-        try {
-            response.setObject( mutants.getStats() );
-            response.setCode( HttpStatus.OK );
-        } catch (HandlerException e) {
-            response.setCode( HttpStatus.FORBIDDEN );
-            response.setMessage( e.getMessage() );
-        }
+        response.setObject( mutants.getStats() );
+        response.setCode( HttpStatus.OK );
         
         return new ResponseEntity<GenericResponse>( response, response.getCode() );
     }
@@ -62,14 +57,8 @@ public class MutantsController {
     @GetMapping("/getRecords")
     public ResponseEntity<GenericResponse> getRecords() {
         GenericResponse response = new GenericResponse();
-        try {
-            response.setObject( mutants.getRecords() );
-            response.setCode( HttpStatus.OK );
-
-        } catch (HandlerException e) {
-            response.setCode( HttpStatus.FORBIDDEN );
-            response.setMessage( e.getMessage() );
-        }
+        response.setObject( mutants.getRecords() );
+        response.setCode( HttpStatus.OK );
         
         return new ResponseEntity<GenericResponse>( response, response.getCode() );
     }

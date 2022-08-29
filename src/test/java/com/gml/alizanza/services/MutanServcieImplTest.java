@@ -1,60 +1,68 @@
 package com.gml.alizanza.services;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import java.util.Arrays;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.gml.alizanza.common.HandlerException;
 import com.gml.alizanza.dao.IMutantDao;
 import com.gml.alizanza.entity.RecordIsMutant;
-import com.gml.alizanza.models.MutantsStatsDto;
-import com.gml.alizanza.services.interfaces.IMutants;
-import com.google.gson.Gson;
 
-@RunWith(MockitoJUnitRunner.class)
 public class MutanServcieImplTest {
 
-	private MutanServcieImpl mutanServcieImpl;
+	@InjectMocks
+    private MutanServcieImpl mutants;
 
-	@Before
-	public void setup() {
-		this.mutanServcieImpl = new MutanServcieImpl();
+	private RecordIsMutant record;
+
+	@Mock
+    private IMutantDao mutantDao;
+
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.initMocks( this );
+		record = new RecordIsMutant();
+		record.setDna("dna");
+		record.setId( 1L );
+		record.setIsMutant( true );
 	}
 
 	@Test
 	public void shouldIsMutant() {
-		// TODO: initialize args
-		String[] dna;
+		when( mutantDao.save( any(RecordIsMutant.class))).thenReturn( null );
+		mutants = new MutanServcieImpl();
+		String[] dna = {"ATGCGA","CAGTGC","TTATGT","AGAAGG","CCCCTA","TCACTG"};
+		boolean isMutant = false;;
 
-		boolean actualValue = mutanServcieImpl.isMutant(dna);
+		try {
+			isMutant = mutants.isMutant(dna);
+		} catch (HandlerException e) {
+			e.printStackTrace();
+		}
+
+		Assertions.assertTrue( isMutant );
 
 		// TODO: assert scenario
 	}
 
 	@Test
 	public void shouldGetStats() {
-		MutantsStatsDto actualValue = mutanServcieImpl.getStats();
-
+		// MutantsStatsDto actualValue = mutanServcieImpl.getStats();
+		
 		// TODO: assert scenario
 	}
 
 	@Test
 	public void shouldGetRecords() {
-		List<RecordIsMutant> actualValue = mutanServcieImpl.getRecords();
-
-		// TODO: assert scenario
+		when( mutantDao.findAll()).thenReturn( Arrays.asList( record ));
+		Assertions.assertNotNull( mutants.getRecords());
 	}
 }

@@ -8,6 +8,6 @@ import com.gml.alizanza.models.MutantsStatsDto;
 
 public interface IMutants {
     public boolean isMutant(String[] dna) throws HandlerException;
-    public MutantsStatsDto getStats() throws HandlerException;
-    public List<RecordIsMutant> getRecords() throws HandlerException;
+    public MutantsStatsDto getStats();
+    public List<RecordIsMutant> getRecords();
 }

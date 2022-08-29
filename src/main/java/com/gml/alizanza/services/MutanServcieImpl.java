@@ -45,7 +45,7 @@ public class MutanServcieImpl implements IMutants {
     /**
      * Metodo encargado de validar que exista una secuencia valida,
      * que todos los items de la secuencia correspondan a valores conocidos y sean
-     * del mismo tamaño.
+     * del mismo tamaño y que la matriz sea cuadrada
      * 
      * @param dna Objeto de la secuencia envíado en el request de la petición
      * @return void
@@ -58,8 +58,14 @@ public class MutanServcieImpl implements IMutants {
         }
 
         int lengthSecuence = dna[0].length();
+        int lengthDna = dna.length;
+
+        if (lengthSecuence != lengthDna) {
+            throw new HandlerException("SECUENCE_ANORMAL_LENGTH");
+        }
+
         String secuence;
-        for (int i = 0, len = dna.length; i < len; i++) {
+        for (int i = 0; i < lengthDna; i++) {
 
             secuence = dna[i];
             if (secuence.length() != lengthSecuence) {
@@ -86,14 +92,14 @@ public class MutanServcieImpl implements IMutants {
      * @return boolean
      * @throws Exception Indica error en caso de encontrar fallos en la secuencia.
      */
-    private boolean searcSecuenceDna(String[] dna) throws HandlerException {
+    private boolean searcSecuenceDna(String[] dna) {
 
         int totalSecuence = 0;
 
         boolean isSearchHorizontal = (dna[0].length() >= MINLENGTH && dna.length > 1)
                 || (dna[0].length() >= MINLENGTH * 2);
         if (isSearchHorizontal) {
-            totalSecuence += getHorizontalSecuence(dna);
+            totalSecuence = getHorizontalSecuence(dna, totalSecuence);
             if (totalSecuence >= 2) {
                 return true;
             }
@@ -102,13 +108,19 @@ public class MutanServcieImpl implements IMutants {
         boolean isSearchVertical = (dna.length >= MINLENGTH && dna[0].length() > 1) || (dna.length >= MINLENGTH * 2);
 
         if (isSearchVertical) {
-            totalSecuence += getVerticalSecuence(dna);
+            totalSecuence = getVerticalSecuence(dna, totalSecuence);
             if (totalSecuence >= 2) {
                 return true;
             }
         }
-
+        
         boolean isSearchDiagonal = dna[0].length() >= MINLENGTH && dna.length >= MINLENGTH;
+        if (isSearchDiagonal) {
+            totalSecuence = getDiagonalSecuence(dna, totalSecuence);
+            if (totalSecuence >= 2) {
+                return true;
+            }
+        }
 
         return false;
     }
@@ -118,11 +130,11 @@ public class MutanServcieImpl implements IMutants {
      * manera horizontal
      * 
      * @param dna Vector con las secuencias envíadas en el request de la petición
+     * @param totalSecuence catidad de secuencias encontradas
      * @return retorna la cantidad de secuencias encontradas en la matriz de manera
      *         horizontal
      */
-    private int getHorizontalSecuence(String[] dna) {
-        int totalSecuence = 0;
+    private int getHorizontalSecuence(String[] dna, int totalSecuence) {
         String dnaSecuence;
         for (int i = 0, len = dna.length; i < len; i++) {
             dnaSecuence = dna[i];
@@ -142,10 +154,11 @@ public class MutanServcieImpl implements IMutants {
      * para esto se procede a voltear la matriz y buscamos ahora si de manera horizontal.
      * 
      * @param dna Vector con las secuencias envíadas en el request de la petición
+     * @param totalSecuence catidad de secuencias encontradas
      * @return retorna la cantidad de secuencias encontradas en la matriz de manera
      *         vertical
      */
-    private int getVerticalSecuence(String[] dna) {
+    private int getVerticalSecuence(String[] dna, int totalSecuence) {
 
         String[] verticalDna = new String[dna.length];
         String dnaSecuence;
@@ -157,7 +170,34 @@ public class MutanServcieImpl implements IMutants {
 
         }
 
-        return getHorizontalSecuence(verticalDna);
+        return getHorizontalSecuence(verticalDna, totalSecuence);
+    }
+
+    /**
+     * Metodo encargado de buscar las secuencias que se encuentren en la matriz de
+     * manera diagonal.
+     * 
+     * @param dna Vector con las secuencias envíadas en el request de la petición
+     * @param totalSecuence catidad de secuencias encontradas
+     * @return retorna la cantidad de secuencias encontradas en la matriz de manera
+     *         diagonal
+     */
+    private int getDiagonalSecuence( String[] dna, int totalSecuence ) {
+
+       String dnaSecuence;
+       String diagonalSup = "";
+       String diagonalInf = "";
+
+       for ( int i = 0, lenDna = dna.length, j = lenDna - 1; i < lenDna; i++, j-- ) {
+        dnaSecuence = dna[i];
+        diagonalSup += Character.toString(dnaSecuence.charAt( i ));
+        diagonalInf += Character.toString(dnaSecuence.charAt( j ));
+       }
+
+       totalSecuence += validSecuenceDnaInSecuence( diagonalSup );
+       totalSecuence += validSecuenceDnaInSecuence( diagonalInf );
+
+        return totalSecuence;
     }
 
     /**
@@ -189,15 +229,15 @@ public class MutanServcieImpl implements IMutants {
      * @param isMutant Indica si el registro será mutante o no.
      */
     private void insertRecord(String[] dna, boolean isMutant) {
-        RecordIsMutant record = new RecordIsMutant();
+        RecordIsMutant mutantRecord = new RecordIsMutant();
         Gson gson = new Gson();
-        record.setDna(  gson.toJson( dna ) );
-        record.setIsMutant(isMutant);
-        mutantDao.save(record);
+        mutantRecord.setDna(  gson.toJson( dna ) );
+        mutantRecord.setIsMutant(isMutant);
+        mutantDao.save(mutantRecord);
     }
 
     @Override
-    public MutantsStatsDto getStats() throws HandlerException {
+    public MutantsStatsDto getStats() {
         MutantsStatsDto stats = new MutantsStatsDto();
         stats.setCountMutantDna( mutantDao.countRecordsIsMutant( true ) );
         stats.setCountHumanDna( mutantDao.countRecordsIsMutant( false ) );
@@ -207,7 +247,7 @@ public class MutanServcieImpl implements IMutants {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RecordIsMutant> getRecords() throws HandlerException {
+    public List<RecordIsMutant> getRecords() {
         return (List<RecordIsMutant>) mutantDao.findAll();
     }
 
