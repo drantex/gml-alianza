@@ -54,4 +54,6 @@ de github).
 
 /**Implementación*/
 Se implementa base de datos en memoria H2 en conjunto de spring JPA para cumplir con el requerimiento de almacenar los registros de secuencias ADN.
+Por defecto la aplicación se levantará sobre el puerto 8080.
+Colección de postman https://www.getpostman.com/collections/745db2d373c23ecd9e57
 
